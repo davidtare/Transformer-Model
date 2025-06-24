@@ -24,7 +24,7 @@ import {
     DarkMode as DarkModeIcon,
     LightMode as LightModeIcon,
     AttachMoney as MoneyIcon
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -481,7 +481,6 @@ function App() {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    alignItems: 'self-start',
                 }}>
                     <Typography variant="h3" component="h1" gutterBottom sx={{
                         textAlign: 'center',
@@ -658,4 +657,4 @@ function App() {
     );
 }
 
-export default App; 
+export default App;
