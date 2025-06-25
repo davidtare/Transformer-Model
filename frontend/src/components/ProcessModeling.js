@@ -19,6 +19,7 @@ import {
   Save as SaveIcon
 } from '@mui/icons-material';
 import './ProcessModeling.css';
+import { API_URL } from '../vars';
 
 const ProcessStep = ({ id, text, index, moveStep, onDelete, onEdit }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -76,7 +77,7 @@ const ProcessModelingContent = () => {
   const fetchProcessModel = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/process-model');
+      const response = await axios.get(`${API_URL}/api/process-model`);
       setSteps(response.data.steps);
       setError(null);
     } catch (err) {
@@ -98,7 +99,7 @@ const ProcessModelingContent = () => {
   const handleDelete = async (id) => {
     try {
       const newSteps = steps.filter(step => step.id !== id);
-      await axios.post('http://localhost:5000/api/process-model', { steps: newSteps });
+      await axios.post(`${API_URL}/api/process-model`, { steps: newSteps });
       setSteps(newSteps);
       showSnackbar('Step deleted successfully', 'success');
     } catch (err) {
@@ -116,7 +117,7 @@ const ProcessModelingContent = () => {
 
   const handleSave = async () => {
     try {
-      await axios.post('http://localhost:5000/api/process-model', { steps });
+      await axios.post(`${API_URL}/api/process-model`, { steps });
       showSnackbar('Process model saved successfully', 'success');
     } catch (err) {
       showSnackbar('Failed to save process model', 'error');

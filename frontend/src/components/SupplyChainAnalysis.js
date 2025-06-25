@@ -18,6 +18,7 @@ import {
     Chip,
 } from '@mui/material';
 import axios from 'axios';
+import { API_URL } from '../vars';
 
 const SupplyChainAnalysis = () => {
     const [file, setFile] = useState(null);
@@ -51,11 +52,15 @@ const SupplyChainAnalysis = () => {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:5000/api/analyze-supply-chain', formData, {
+            const response = await axios.post(
+              `${API_URL}/api/analyze-supply-chain`,
+              formData,
+              {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                  "Content-Type": "multipart/form-data",
                 },
-            });
+              }
+            );
 
             if (response.data.error) {
                 setError(response.data.error);
@@ -74,15 +79,18 @@ const SupplyChainAnalysis = () => {
 
     const startMonitoring = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/monitor-supply-chain', {
+            const response = await axios.post(
+              `${API_URL}/api/monitor-supply-chain`,
+              {
                 metrics: {
-                    cost_of_goods: 1000000,
-                    average_inventory: 250000,
-                    fulfilled_orders: 950,
-                    total_orders: 1000,
-                    total_lead_time: 5000
-                }
-            });
+                  cost_of_goods: 1000000,
+                  average_inventory: 250000,
+                  fulfilled_orders: 950,
+                  total_orders: 1000,
+                  total_lead_time: 5000,
+                },
+              }
+            );
 
             setMonitoring(response.data);
         } catch (err) {

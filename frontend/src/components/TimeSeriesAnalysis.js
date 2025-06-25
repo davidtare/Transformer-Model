@@ -20,6 +20,7 @@ import {
     Legend,
 } from 'chart.js';
 import axios from 'axios';
+import { API_URL } from '../vars';
 
 // Register ChartJS components
 ChartJS.register(
@@ -43,7 +44,7 @@ const TimeSeriesAnalysis = () => {
         try {
             setLoading(true);
             setError('');
-            const response = await axios.post('http://localhost:5000/api/analyze-timeseries', {
+            const response = await axios.post(`${API_URL}/api/analyze-timeseries`, {
                 data: JSON.parse(data),
                 windowSize: windowSize,
                 forecastSteps: forecastSteps
