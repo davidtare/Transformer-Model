@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+# Removed sklearn imports to avoid dependency issues
 
 # Load environment variables
 load_dotenv()
@@ -147,6 +148,126 @@ def upload_file():
     except Exception as e:
         logger.error(f"Error in upload_file: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
+
+def analyze_timeseries(data):
+    """Analyze time series data for bottlenecks and anomalies"""
+    try:
+        # Validate input data
+        if not isinstance(data, list):
+            raise ValueError("Input data must be a list of objects")
+        
+        # Validate each item in the data
+        for item in data:
+            if not isinstance(item, dict):
+                raise ValueError("Each item must be a dictionary")
+            if 'timestamp' not in item:
+                raise ValueError("Each item must have a 'timestamp' field")
+            if 'step' not in item:
+                raise ValueError("Each item must have a 'step' field")
+            if 'delay' not in item:
+                raise ValueError("Each item must have a 'delay' field")
+            
+            # Convert delay to float if it's a string
+            if isinstance(item['delay'], str):
+                try:
+                    item['delay'] = float(item['delay'])
+                except ValueError:
+                    raise ValueError(f"Delay value '{item['delay']}' cannot be converted to a number")
+        
+        # Convert timestamps to datetime objects
+        for item in data:
+            try:
+                item['timestamp'] = datetime.fromisoformat(item['timestamp'].replace('Z', '+00:00'))
+            except ValueError as e:
+                raise ValueError(f"Invalid timestamp format: {item['timestamp']}. Expected ISO format (YYYY-MM-DDTHH:mm:ss)")
+        
+        # Sort by timestamp
+        data.sort(key=lambda x: x['timestamp'])
+        
+        # Calculate delays between steps
+        delays = []
+        for i in range(1, len(data)):
+            delay = (data[i]['timestamp'] - data[i-1]['timestamp']).total_seconds() / 3600  # Convert to hours
+            delays.append(delay)
+        
+        # Calculate bottleneck impact scores
+        bottlenecks = []
+        for i, step in enumerate(data):
+            if i == 0:
+                continue
+            impact = float(step['delay']) / max(delays) if max(delays) > 0 else 0
+            bottlenecks.append({
+                'step': step['step'],
+                'impact': impact,
+                'delay': float(step['delay'])
+            })
+        
+        # Sort bottlenecks by impact
+        bottlenecks.sort(key=lambda x: x['impact'], reverse=True)
+        
+        # Detect anomalies using simple statistical methods (Z-score)
+        delay_values = np.array([float(item['delay']) for item in data])
+        mean_delay = np.mean(delay_values)
+        std_delay = np.std(delay_values)
+        
+        # Identify anomalous steps using Z-score (threshold = 2)
+        anomalous_steps = []
+        for i, step in enumerate(data):
+            z_score = abs((float(step['delay']) - mean_delay) / std_delay) if std_delay > 0 else 0
+            if z_score > 2:  # Anomaly threshold
+                anomalous_steps.append({
+                    'step': step['step'],
+                    'description': f"Unusual delay pattern detected: {step['delay']} hours (Z-score: {z_score:.2f})"
+                })
+        
+        # Generate recommendations
+        recommendations = []
+        
+        # Bottleneck recommendations
+        if bottlenecks:
+            top_bottleneck = bottlenecks[0]
+            recommendations.append({
+                'title': 'Bottleneck Optimization',
+                'description': f"Consider optimizing {top_bottleneck['step']} as it has the highest impact on process delays."
+            })
+        
+        # Anomaly recommendations
+        if anomalous_steps:
+            recommendations.append({
+                'title': 'Process Anomaly',
+                'description': f"Investigate unusual delays in {', '.join(step['step'] for step in anomalous_steps)}."
+            })
+        
+        # Sequential optimization recommendations
+        if len(bottlenecks) >= 2:
+            recommendations.append({
+                'title': 'Process Reordering',
+                'description': f"Consider reordering steps to reduce dependencies between {bottlenecks[0]['step']} and {bottlenecks[1]['step']}."
+            })
+        
+        return {
+            'bottlenecks': bottlenecks,
+            'anomalies': anomalous_steps,
+            'recommendations': recommendations
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in time series analysis: {str(e)}")
+        raise ValueError(str(e))
+
+@app.route('/api/analyze-timeseries', methods=['POST'])
+def analyze_timeseries_endpoint():
+    try:
+        data = request.get_json()
+        if not data or 'data' not in data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        results = analyze_timeseries(data['data'])
+        return jsonify(results)
+    
+    except Exception as e:
+        logger.error(f"Error processing request: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     logger.info("Starting simplified Flask server...")
