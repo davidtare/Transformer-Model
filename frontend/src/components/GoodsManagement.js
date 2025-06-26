@@ -131,17 +131,25 @@ const GoodsManagement = () => {
             return percentages[Math.floor(Math.random() * percentages.length)];
         };
 
-        // Calculate predictions with different percentages for each interval
+        // Calculate predictions with random direction for each interval
         const predictions = {
-            up: {
-                30: currentPrice * (1 + getRandomPercentage([0.03, 0.07])),
-                50: currentPrice * (1 + getRandomPercentage([0.02, 0.08, 0.09])),
-                60: currentPrice * (1 + getRandomPercentage([0.01, 0.04]))
+            30: {
+                direction: Math.random() > 0.5 ? 'up' : 'down',
+                price: Math.random() > 0.5 
+                    ? currentPrice * (1 + getRandomPercentage([0.03, 0.07]))
+                    : currentPrice * (1 - getRandomPercentage([0.03, 0.07]))
             },
-            down: {
-                30: currentPrice * (1 - getRandomPercentage([0.03, 0.07])),
-                50: currentPrice * (1 - getRandomPercentage([0.02, 0.08, 0.09])),
-                60: currentPrice * (1 - getRandomPercentage([0.01, 0.04]))
+            50: {
+                direction: Math.random() > 0.5 ? 'up' : 'down',
+                price: Math.random() > 0.5 
+                    ? currentPrice * (1 + getRandomPercentage([0.02, 0.08, 0.09]))
+                    : currentPrice * (1 - getRandomPercentage([0.02, 0.08, 0.09]))
+            },
+            60: {
+                direction: Math.random() > 0.5 ? 'up' : 'down',
+                price: Math.random() > 0.5 
+                    ? currentPrice * (1 + getRandomPercentage([0.01, 0.04]))
+                    : currentPrice * (1 - getRandomPercentage([0.01, 0.04]))
             }
         };
 
@@ -416,58 +424,88 @@ const GoodsManagement = () => {
                                         }}>
                                             <MoneyIcon color="primary" /> {item.goodsName}
                                         </Typography>
-                                        <Grid container spacing={2}>
-                                            <Grid item xs={12} sm={6}>
+                                        <Box sx={{
+                                            p: 2,
+                                            bgcolor: 'primary.light',
+                                            borderRadius: 1,
+                                            transition: 'all 0.3s ease'
+                                        }}>
+                                            <Typography variant="subtitle2" color="white" sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                mb: 2
+                                            }}>
+                                                <AssessmentIcon /> Price Predictions
+                                            </Typography>
+                                            <Box sx={{
+                                                display: 'flex',
+                                                gap: 2,
+                                                flexWrap: 'wrap',
+                                                justifyContent: 'space-between'
+                                            }}>
                                                 <Box sx={{
-                                                    p: 2,
-                                                    bgcolor: 'success.light',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                    p: 1.5,
+                                                    bgcolor: item.predictions[30].direction === 'up' ? 'success.main' : 'error.main',
                                                     borderRadius: 1,
-                                                    transition: 'all 0.3s ease'
+                                                    flex: '1 1 auto',
+                                                    minWidth: '120px'
                                                 }}>
-                                                    <Typography variant="subtitle2" color="white" sx={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 1
-                                                    }}>
-                                                        <TrendingUpIcon /> Price Increase Prediction
-                                                    </Typography>
-                                                    <Typography variant="body2" color="white">
-                                                        30 days: ${item.predictions.up[30].toFixed(2)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="white">
-                                                        50 days: ${item.predictions.up[50].toFixed(2)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="white">
-                                                        60 days: ${item.predictions.up[60].toFixed(2)}
-                                                    </Typography>
+                                                    {item.predictions[30].direction === 'up' ? <TrendingUpIcon /> : <TrendingDownIcon />}
+                                                    <Box>
+                                                        <Typography variant="body2" color="white" fontWeight="bold">
+                                                            30 days
+                                                        </Typography>
+                                                        <Typography variant="body2" color="white">
+                                                            ${item.predictions[30].price.toFixed(2)}
+                                                        </Typography>
+                                                    </Box>
                                                 </Box>
-                                            </Grid>
-                                            <Grid item xs={12} sm={6}>
                                                 <Box sx={{
-                                                    p: 2,
-                                                    bgcolor: 'error.light',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                    p: 1.5,
+                                                    bgcolor: item.predictions[50].direction === 'up' ? 'success.main' : 'error.main',
                                                     borderRadius: 1,
-                                                    transition: 'all 0.3s ease'
+                                                    flex: '1 1 auto',
+                                                    minWidth: '120px'
                                                 }}>
-                                                    <Typography variant="subtitle2" color="white" sx={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 1
-                                                    }}>
-                                                        <TrendingDownIcon /> Price Decrease Prediction
-                                                    </Typography>
-                                                    <Typography variant="body2" color="white">
-                                                        30 days: ${item.predictions.down[30].toFixed(2)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="white">
-                                                        50 days: ${item.predictions.down[50].toFixed(2)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="white">
-                                                        60 days: ${item.predictions.down[60].toFixed(2)}
-                                                    </Typography>
+                                                    {item.predictions[50].direction === 'up' ? <TrendingUpIcon /> : <TrendingDownIcon />}
+                                                    <Box>
+                                                        <Typography variant="body2" color="white" fontWeight="bold">
+                                                            50 days
+                                                        </Typography>
+                                                        <Typography variant="body2" color="white">
+                                                            ${item.predictions[50].price.toFixed(2)}
+                                                        </Typography>
+                                                    </Box>
                                                 </Box>
-                                            </Grid>
-                                        </Grid>
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                    p: 1.5,
+                                                    bgcolor: item.predictions[60].direction === 'up' ? 'success.main' : 'error.main',
+                                                    borderRadius: 1,
+                                                    flex: '1 1 auto',
+                                                    minWidth: '120px'
+                                                }}>
+                                                    {item.predictions[60].direction === 'up' ? <TrendingUpIcon /> : <TrendingDownIcon />}
+                                                    <Box>
+                                                        <Typography variant="body2" color="white" fontWeight="bold">
+                                                            60 days
+                                                        </Typography>
+                                                        <Typography variant="body2" color="white">
+                                                            ${item.predictions[60].price.toFixed(2)}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                        </Box>
                                     </CardContent>
                                 </Card>
                             </Grid>
@@ -505,28 +543,55 @@ const GoodsManagement = () => {
                                     <TableRow key={item.id}>
                                         <TableCell>{item.supplierName}</TableCell>
                                         <TableCell>
-                                            <Chip
-                                                icon={item.supplierPerformance.onTimeDelivery === 'Good' ? <CheckCircleIcon /> : <WarningIcon />}
-                                                label={item.supplierPerformance.onTimeDelivery}
-                                                color={item.supplierPerformance.onTimeDelivery === 'Good' ? 'success' : 'error'}
-                                                size="small"
-                                            />
+                                            <Tooltip 
+                                                title={item.supplierPerformance.onTimeDelivery === 'Good' 
+                                                    ? "Consistently delivers orders within agreed timeframes with 95%+ on-time delivery rate over the past 6 months"
+                                                    : "Frequent delivery delays with less than 70% on-time delivery rate, causing supply chain disruptions"
+                                                }
+                                                arrow
+                                                placement="top"
+                                            >
+                                                <Chip
+                                                    icon={item.supplierPerformance.onTimeDelivery === 'Good' ? <CheckCircleIcon /> : <WarningIcon />}
+                                                    label={item.supplierPerformance.onTimeDelivery}
+                                                    color={item.supplierPerformance.onTimeDelivery === 'Good' ? 'success' : 'error'}
+                                                    size="small"
+                                                />
+                                            </Tooltip>
                                         </TableCell>
                                         <TableCell>
-                                            <Chip
-                                                icon={item.supplierPerformance.qualityScore === 'High' ? <CheckCircleIcon /> : <WarningIcon />}
-                                                label={item.supplierPerformance.qualityScore}
-                                                color={item.supplierPerformance.qualityScore === 'High' ? 'success' : 'error'}
-                                                size="small"
-                                            />
+                                            <Tooltip 
+                                                title={item.supplierPerformance.qualityScore === 'High' 
+                                                    ? "Excellent product quality with less than 2% defect rate and consistent compliance with quality standards"
+                                                    : "Quality issues detected with defect rates above 8%, requiring frequent returns and quality inspections"
+                                                }
+                                                arrow
+                                                placement="top"
+                                            >
+                                                <Chip
+                                                    icon={item.supplierPerformance.qualityScore === 'High' ? <CheckCircleIcon /> : <WarningIcon />}
+                                                    label={item.supplierPerformance.qualityScore}
+                                                    color={item.supplierPerformance.qualityScore === 'High' ? 'success' : 'error'}
+                                                    size="small"
+                                                />
+                                            </Tooltip>
                                         </TableCell>
                                         <TableCell>
-                                            <Chip
-                                                icon={item.supplierPerformance.riskLevel === 'Low' ? <CheckCircleIcon /> : <WarningIcon />}
-                                                label={item.supplierPerformance.riskLevel}
-                                                color={getSupplierRiskColor(item.supplierPerformance.riskLevel)}
-                                                size="small"
-                                            />
+                                            <Tooltip 
+                                                title={item.supplierPerformance.riskLevel === 'Low' 
+                                                    ? "Stable supplier with strong financial health, diversified operations, and reliable track record"
+                                                    : "High-risk supplier due to financial instability, single-source dependencies, or regulatory compliance issues"
+                                                }
+                                                arrow
+                                                placement="top"
+                                            >
+                                                <Chip
+                                                    icon={item.supplierPerformance.riskLevel === 'Low' ? <CheckCircleIcon /> : <WarningIcon />}
+                                                    label={item.supplierPerformance.riskLevel}
+                                                    color={getSupplierRiskColor(item.supplierPerformance.riskLevel)}
+                                                    size="small"
+                                                />
+                                            </Tooltip>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -539,4 +604,4 @@ const GoodsManagement = () => {
     );
 };
 
-export default GoodsManagement; 
+export default GoodsManagement;
